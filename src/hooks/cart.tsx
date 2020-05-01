@@ -31,6 +31,13 @@ const CartProvider: React.FC = ({ children }) => {
   useEffect(() => {
     async function loadProducts(): Promise<void> {
       // TODO LOAD ITEMS FROM ASYNC STORAGE
+      const productsLoaded = await AsyncStorage.getItem(
+        '@GoMarketplace:products',
+      );
+
+      if (productsLoaded) {
+        setProducts(JSON.parse(productsLoaded));
+      }
     }
 
     loadProducts();
@@ -51,6 +58,11 @@ const CartProvider: React.FC = ({ children }) => {
         const quant = (productsUpdated[index].quantity || 1) + 1;
         productsUpdated[index].quantity = quant;
       }
+
+      await AsyncStorage.setItem(
+        '@GoMarketplace:products',
+        JSON.stringify(productsUpdated),
+      );
 
       setProducts([...productsUpdated]);
     },
