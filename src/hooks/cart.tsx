@@ -36,10 +36,24 @@ const CartProvider: React.FC = ({ children }) => {
     loadProducts();
   }, []);
 
-  const addToCart = useCallback(async product => {
-    // TODO ADD A NEW ITEM TO THE CART
-    setProducts(state => [...state, product]);
-  }, []);
+  const addToCart = useCallback(
+    async product => {
+      // TODO ADD A NEW ITEM TO THE CART
+      const index = products.findIndex(item => item.id === product.id);
+
+      const productsUpdated = products;
+
+      if (index < 0) {
+        productsUpdated.push(product);
+      } else {
+        const quant = (productsUpdated[index].quantity || 1) + 1;
+        productsUpdated[index].quantity = quant;
+      }
+
+      setProducts([...productsUpdated]);
+    },
+    [products],
+  );
 
   const increment = useCallback(async id => {
     // TODO INCREMENTS A PRODUCT QUANTITY IN THE CART
