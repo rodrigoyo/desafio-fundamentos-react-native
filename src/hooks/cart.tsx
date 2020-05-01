@@ -44,7 +44,9 @@ const CartProvider: React.FC = ({ children }) => {
       const productsUpdated = products;
 
       if (index < 0) {
-        productsUpdated.push(product);
+        const newProduct: Product = product;
+        newProduct.quantity = 1;
+        productsUpdated.push(newProduct);
       } else {
         const quant = (productsUpdated[index].quantity || 1) + 1;
         productsUpdated[index].quantity = quant;
