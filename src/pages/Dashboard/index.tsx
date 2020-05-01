@@ -26,6 +26,7 @@ interface Product {
   title: string;
   image_url: string;
   price: number;
+  quantity: number;
 }
 
 const Dashboard: React.FC = () => {
@@ -37,7 +38,16 @@ const Dashboard: React.FC = () => {
     async function loadProducts(): Promise<void> {
       // TODO
       const response = await api.get('products');
-      setProducts(response.data);
+      if (response.data) {
+        const loadedProducts = response.data.map(
+          (item: Product): Product => {
+            const newItem: Product = item;
+            newItem.quantity = 1;
+            return newItem;
+          },
+        );
+        setProducts(loadedProducts);
+      }
     }
     loadProducts();
   }, []);
