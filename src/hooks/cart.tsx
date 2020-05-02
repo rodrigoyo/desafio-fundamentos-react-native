@@ -45,8 +45,6 @@ const CartProvider: React.FC = ({ children }) => {
     async product => {
       // TODO ADD A NEW ITEM TO THE CART
 
-      // const index = products.findIndex(item => item.id === product.id);
-
       const cart: Product[] = products;
       const productIndex = products.findIndex(item => item.id === product.id);
 
@@ -58,8 +56,11 @@ const CartProvider: React.FC = ({ children }) => {
         cart[productIndex].quantity += 1;
       }
 
-      await AsyncStorage.setItem('@GoMarketplace:cart', JSON.stringify(cart));
       setProducts([...cart]);
+      await AsyncStorage.setItem(
+        '@GoMarketplace:cart',
+        JSON.stringify(products),
+      );
     },
     [products],
   );
@@ -68,10 +69,14 @@ const CartProvider: React.FC = ({ children }) => {
     async id => {
       // TODO INCREMENTS A PRODUCT QUANTITY IN THE CART
       const index = products.findIndex(item => item.id === id);
-      const productsUpdated = products;
-      productsUpdated[index].quantity += 1;
+      const cartUpdated: Product[] = products;
+      cartUpdated[index].quantity += 1;
 
-      setProducts([...productsUpdated]);
+      setProducts([...cartUpdated]);
+      await AsyncStorage.setItem(
+        '@GoMarketplace:cart',
+        JSON.stringify(products),
+      );
     },
     [products],
   );
@@ -80,10 +85,20 @@ const CartProvider: React.FC = ({ children }) => {
     async id => {
       // TODO DECREMENTS A PRODUCT QUANTITY IN THE CART
       const index = products.findIndex(item => item.id === id);
-      const productsUpdated = products;
-      productsUpdated[index].quantity -= 1;
+      const cartUpdated: Product[] = products;
+      cartUpdated[index].quantity -= 1;
 
-      setProducts([...productsUpdated]);
+      if (cartUpdated[index].quantity <= 0) {
+        cartUpdated[index].quantity = 0;
+        cartUpdated.splice(index, 1);
+      }
+
+      setProducts([...cartUpdated]);
+
+      await AsyncStorage.setItem(
+        '@GoMarketplace:cart',
+        JSON.stringify(products),
+      );
     },
     [products],
   );
