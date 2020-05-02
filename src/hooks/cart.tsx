@@ -18,7 +18,7 @@ interface Product {
 
 interface CartContext {
   products: Product[];
-  addToCart(item: Product): void;
+  addToCart(item: Omit<Product, 'quantity'>): void;
   increment(id: string): void;
   decrement(id: string): void;
 }
@@ -31,12 +31,10 @@ const CartProvider: React.FC = ({ children }) => {
   useEffect(() => {
     async function loadProducts(): Promise<void> {
       // TODO LOAD ITEMS FROM ASYNC STORAGE
-      const productsLoaded = await AsyncStorage.getItem(
-        '@GoMarketplace:products',
-      );
+      const cartLoaded = await AsyncStorage.getItem('@GoMarketplace:cart');
 
-      if (productsLoaded) {
-        setProducts(JSON.parse(productsLoaded));
+      if (cartLoaded) {
+        setProducts(JSON.parse(cartLoaded));
       }
     }
 
@@ -46,25 +44,22 @@ const CartProvider: React.FC = ({ children }) => {
   const addToCart = useCallback(
     async product => {
       // TODO ADD A NEW ITEM TO THE CART
-      const index = products.findIndex(item => item.id === product.id);
 
-      const productsUpdated = products;
+      // const index = products.findIndex(item => item.id === product.id);
 
-      if (index < 0) {
+      const cart: Product[] = products;
+      const productIndex = products.findIndex(item => item.id === product.id);
+
+      if (productIndex < 0) {
         const newProduct: Product = product;
         newProduct.quantity = 1;
-        productsUpdated.push(newProduct);
+        cart.push(newProduct);
       } else {
-        const quant = (productsUpdated[index].quantity || 1) + 1;
-        productsUpdated[index].quantity = quant;
+        cart[productIndex].quantity += 1;
       }
 
-      await AsyncStorage.setItem(
-        '@GoMarketplace:products',
-        JSON.stringify(productsUpdated),
-      );
-
-      setProducts([...productsUpdated]);
+      await AsyncStorage.setItem('@GoMarketplace:cart', JSON.stringify(cart));
+      setProducts([...cart]);
     },
     [products],
   );
